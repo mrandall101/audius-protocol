@@ -14,4 +14,19 @@ describe('solana-dms', () => {
     const tx = await program.rpc.initialize({});
     console.log("Your transaction signature", tx);
   });
+
+  it('can send tweet', async () => {
+    // before sending tx to chain
+
+    await program.rpc.sendTweet('TOPIC HERE', 'CONTENT HERE', {
+      accounts: {
+        // accounts
+      },
+      signers: [
+        // signer key pairs
+      ]
+    });
+
+    // after sending tx to chain
+  })
 });
