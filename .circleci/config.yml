@@ -555,7 +555,7 @@ jobs:
   test-solana-programs:
     docker:
       # specify the version you desire here
-      - image: cimg/rust:1.53.0
+      - image: cimg/rust:1.55.0
     steps:
       - checkout
       - diff-if-necessary:
@@ -564,7 +564,7 @@ jobs:
       - run:
           name: Setup solana
           command: |
-            sh -c "$(curl -sSfL https://release.solana.com/v1.8.9/install)"
+            sh -c "$(curl -sSfL https://release.solana.com/v1.8.14/install)"
             export PATH="/home/circleci/.local/share/solana/install/active_release/bin:$PATH"
 
       - restore_cache:
