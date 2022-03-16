@@ -400,14 +400,14 @@ def configure_celery(celery, test_config=None):
                 "task": "update_discovery_provider",
                 "schedule": timedelta(seconds=indexing_interval_sec),
             },
-            "update_ipld_blacklist": {
-                "task": "update_ipld_blacklist",
-                "schedule": timedelta(seconds=ipld_interval),
-            },
-            "update_play_count": {
-                "task": "update_play_count",
-                "schedule": timedelta(seconds=60),
-            },
+            # "update_ipld_blacklist": {
+            #     "task": "update_ipld_blacklist",
+            #     "schedule": timedelta(seconds=ipld_interval),
+            # },
+            # "update_play_count": {
+            #     "task": "update_play_count",
+            #     "schedule": timedelta(seconds=60),
+            # },
             "update_metrics": {
                 "task": "update_metrics",
                 "schedule": crontab(minute=0, hour="*"),
@@ -420,14 +420,14 @@ def configure_celery(celery, test_config=None):
                 "task": "synchronize_metrics",
                 "schedule": timedelta(minutes=SYNCHRONIZE_METRICS_INTERVAL),
             },
-            "update_materialized_views": {
-                "task": "update_materialized_views",
-                "schedule": timedelta(seconds=300),
-            },
-            "update_aggregate_plays": {
-                "task": "update_aggregate_plays",
-                "schedule": timedelta(seconds=15),
-            },
+            # "update_materialized_views": {
+            #     "task": "update_materialized_views",
+            #     "schedule": timedelta(seconds=300),
+            # },
+            # "update_aggregate_plays": {
+            #     "task": "update_aggregate_plays",
+            #     "schedule": timedelta(seconds=15),
+            # },
             "index_hourly_play_counts": {
                 "task": "index_hourly_play_counts",
                 "schedule": timedelta(seconds=30),
@@ -440,14 +440,14 @@ def configure_celery(celery, test_config=None):
                 "task": "update_network_peers",
                 "schedule": timedelta(seconds=30),
             },
-            "index_trending": {
-                "task": "index_trending",
-                "schedule": timedelta(seconds=10),
-            },
-            "update_user_balances": {
-                "task": "update_user_balances",
-                "schedule": timedelta(seconds=60),
-            },
+            # "index_trending": {
+            #     "task": "index_trending",
+            #     "schedule": timedelta(seconds=10),
+            # },
+            # "update_user_balances": {
+            #     "task": "update_user_balances",
+            #     "schedule": timedelta(seconds=60),
+            # },
             "monitoring_queue": {
                 "task": "monitoring_queue",
                 "schedule": timedelta(seconds=60),
@@ -460,18 +460,18 @@ def configure_celery(celery, test_config=None):
                 "task": "index_solana_plays",
                 "schedule": timedelta(seconds=5),
             },
-            "update_aggregate_user": {
-                "task": "update_aggregate_user",
-                "schedule": timedelta(seconds=30),
-            },
-            "update_aggregate_track": {
-                "task": "update_aggregate_track",
-                "schedule": timedelta(seconds=30),
-            },
-            "update_aggregate_playlist": {
-                "task": "update_aggregate_playlist",
-                "schedule": timedelta(seconds=30),
-            },
+            # "update_aggregate_user": {
+            #     "task": "update_aggregate_user",
+            #     "schedule": timedelta(seconds=30),
+            # },
+            # "update_aggregate_track": {
+            #     "task": "update_aggregate_track",
+            #     "schedule": timedelta(seconds=30),
+            # },
+            # "update_aggregate_playlist": {
+            #     "task": "update_aggregate_playlist",
+            #     "schedule": timedelta(seconds=30),
+            # },
             "index_user_bank": {
                 "task": "index_user_bank",
                 "schedule": timedelta(seconds=5),
