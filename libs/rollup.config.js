@@ -40,7 +40,6 @@ export default {
     'ethereumjs-util',
     'ethereumjs-wallet',
     'ethers',
-    'ethers-contracts',
     'ethers/lib/utils',
     'ethers/lib/index',
     'form-data',
