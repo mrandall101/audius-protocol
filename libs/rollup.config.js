@@ -24,6 +24,7 @@ export default {
   ],
   external: [
     '@audius/hedgehog',
+    '@audius/solana',
     '@certusone/wormhole-sdk',
     '@ethersproject/solidity',
     '@solana/spl-token',
