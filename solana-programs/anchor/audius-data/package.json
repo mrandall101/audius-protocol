@@ -5,6 +5,7 @@
   "scripts": {
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "typecheck": "tsc --noEmit",
     "build": "rollup -c",
     "dev": "rollup -c --watch"
   },
