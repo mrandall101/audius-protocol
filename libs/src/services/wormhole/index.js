@@ -6,7 +6,7 @@ const wormholeSDK = require('@certusone/wormhole-sdk')
 const { setDefaultWasm } = require('@certusone/wormhole-sdk/lib/cjs/solana/wasm')
 
 const SolanaUtils = require('../solanaWeb3Manager/utils')
-const Utils = require('../../utils')
+const { Utils } = require('../../utils')
 const { wAudioFromWeiAudio } = require('../solanaWeb3Manager/wAudio')
 const { sign, getTransferTokensDigest } = require('../../utils/signatures')
 /** Singleton state-manager for Audius Eth Contracts */
