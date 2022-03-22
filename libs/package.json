@@ -25,7 +25,7 @@
   "dependencies": {
     "@audius/hedgehog": "1.0.12",
     "@certusone/wormhole-sdk": "0.0.10",
-    "@audius/solana": "0.0.1",
+    "@audius/anchor-audius-data": "0.0.1",
     "@ethersproject/solidity": "5.0.5",
     "@improbable-eng/grpc-web-node-http-transport": "0.15.0",
     "@solana/spl-token": "0.1.6",
