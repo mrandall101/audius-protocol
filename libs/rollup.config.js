@@ -9,7 +9,9 @@ const extensions = ['.js', '.ts']
 
 export default {
   input: 'src/index.js',
-  output: [{ file: pkg.main, format: 'cjs', exports: 'named' }],
+  output: [
+    { file: pkg.main, format: 'cjs', exports: 'auto', sourcemap: true }
+  ],
   plugins: [
     commonjs({
       extensions,
@@ -24,8 +26,9 @@ export default {
   ],
   external: [
     '@audius/hedgehog',
-    '@audius/solana',
+    '@audius/anchor-audius-data',
     '@certusone/wormhole-sdk',
+    '@certusone/wormhole-sdk/lib/cjs/solana/wasm',
     '@ethersproject/solidity',
     '@solana/spl-token',
     '@solana/web3.js',
