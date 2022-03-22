@@ -26,7 +26,6 @@ export default {
   ],
   external: [
     '@audius/hedgehog',
-    '@audius/anchor-audius-data',
     '@certusone/wormhole-sdk',
     '@certusone/wormhole-sdk/lib/cjs/solana/wasm',
     '@ethersproject/solidity',
