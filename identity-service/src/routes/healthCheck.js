@@ -411,7 +411,7 @@ module.exports = function (app) {
     return (numConnections >= maxConnections) ? errorResponseServerError(resp) : successResponse(resp)
   }))
 
-  app.get('/rewards_check', handleResponse(async (req) => {
+  app.get('/rewards_check', handleResponse(async (req, res) => {
     const { maxDrift, maxSuccessDrift } = req.query
     const { lastChallengeTime, lastSuccessChallengeTime, phase } = req.app.get('rewardsAttester').getState()
     const lastChallengeDelta = lastChallengeTime - Date.now()
