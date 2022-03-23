@@ -1,6 +1,6 @@
 {
   "name": "@audius/libs",
-  "version": "1.2.93",
+  "version": "1.2.94-beta.3",
   "description": "",
   "main": "dist/index.js",
   "browser": {
