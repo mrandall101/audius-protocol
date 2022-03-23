@@ -5,7 +5,6 @@ const { RewardsAttester } = require('@audius/libs')
 const { RewardsReporter } = require('./rewardsReporter')
 const config = require('../config.js')
 
-const REDIS_ATTEST_HEALTH_KEY = 'last-attestation-time'
 const REDIS_ATTEST_START_BLOCK_OVERRIDE_KEY = 'attestation-start-block-override'
 
 const getRemoteConfig = async (optimizely) => {
@@ -86,12 +85,6 @@ const setupRewardsAttester = async (libs, optimizely, redisClient) => {
         startingBlock,
         offset
       }, { where: {} })
-
-      // If we succeeded in attesting for at least a single reward,
-      // store in Redis so we can healthcheck it.
-      if (successCount > 0) {
-        await redisClient.set(REDIS_ATTEST_HEALTH_KEY, Date.now())
-      }
     },
     getStartingBlockOverride: async () => {
       // Retrieve a starting block override from redis (that is set externally, CLI, or otherwise)
@@ -130,4 +123,3 @@ const setupRewardsAttester = async (libs, optimizely, redisClient) => {
 }
 
 module.exports = { setupRewardsAttester }
-module.exports.REDIS_ATTEST_HEALTH_KEY = REDIS_ATTEST_HEALTH_KEY
