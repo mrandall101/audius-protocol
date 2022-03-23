@@ -16,6 +16,14 @@ class BaseRewardsReporter {
 const MAX_DISBURSED_CACHE_SIZE = 100
 const SOLANA_EST_SEC_PER_SLOT = 0.5
 const POA_SEC_PER_BLOCK = 5
+const ATTESTER_PHASE = Object.freeze({
+  HALTED: 'HALTED',
+  SELECTING_NODES: 'SELECTING_NODES',
+  REFILLING_QUEUE: 'REFILLING_QUEUE',
+  ATTESTING: 'ATTESTING',
+  SLEEPING: 'SLEEPING',
+  RETRY_BACKOFF: 'RETRY_BACKOFF'
+})
 
 /**
  * Class to encapsulate logic for calculating disbursement delay thresholds.
@@ -206,6 +214,11 @@ class RewardsAttester {
     // Get override starting block for manually setting indexing start
     this.getStartingBlockOverride = getStartingBlockOverride
     this.feePayerOverride = feePayerOverride
+    this.attesterState = {
+      phase: ATTESTER_PHASE.HALTED,
+      lastSuccessChallengeTime: null,
+      lastChallengeTime: null
+    }
 
     // Calculate delay
     this.delayCalculator = new AttestationDelayCalculator({
@@ -260,6 +273,7 @@ class RewardsAttester {
         // If queue is still empty, sleep and return
         if (!this.undisbursedQueue.length) {
           this.logger.info('No undisbursed challenges. Sleeping...')
+          this._updatePhase(ATTESTER_PHASE.SLEEPING)
           await this._delay(1000)
           continue
         }
@@ -340,6 +354,10 @@ class RewardsAttester {
     this.parallelization = parallelization || this.parallelization
   }
 
+  getState () {
+    return this.attesterState
+  }
+
   /**
    * Sleeps until the feePayer has a usable Sol balance.
    *
@@ -399,6 +417,7 @@ class RewardsAttester {
    */
   async _attestInParallel (toAttest) {
     this.logger.info(`Attesting in parallel with startingBlock: ${this.startingBlock}, offset: ${this.offset}, parallelization: ${this.parallelization}`)
+    this._updatePhase(ATTESTER_PHASE.ATTESTING)
     // Get the highest block number, ignoring Solana based challenges (i.e. listens) which have a significantly higher
     // slot and throw off this calculation.
     // TODO: [AUD-1217] we should handle this in a less hacky way, possibly by
@@ -407,6 +426,7 @@ class RewardsAttester {
     const highestBlock = poaAttestations.length ? Math.max(...poaAttestations.map(e => e.completedBlocknumber)) : null
 
     // Attempt to attest in a single sweep
+    this._updatePhase(ATTESTER_PHASE.ATTESTING)
     const results = await Promise.all(toAttest.map(this._performSingleAttestation))
 
     // "Process" the results of attestation into noRetry and needsRetry errors,
@@ -430,6 +450,7 @@ class RewardsAttester {
       if (shouldReselect) {
         await this._selectDiscoveryNodes()
       }
+      this._updatePhase(ATTESTER_PHASE.ATTESTING)
       const res = await Promise.all(needsRetry.map(this._performSingleAttestation))
       ;({ successful, needsRetry, noRetry, shouldReselect } = this._processResponses(res, retryCount === this.maxRetries))
       accumulatedErrors = [...accumulatedErrors, ...noRetry]
@@ -545,13 +566,15 @@ class RewardsAttester {
   }
 
   async _selectDiscoveryNodes () {
+    this._updatePhase(ATTESTER_PHASE.SLEEPING)
     this.logger.info('Selecting discovery nodes', { endpointPool: this.endpointPool })
+    const startTime = Date.now()
     const endpoints = await this.libs.discoveryProvider.serviceSelector.findAll({
       verbose: true,
       whitelist: this.endpointPool.size > 0 ? this.endpointPool : null
     })
     this.endpoints = await this.libs.Rewards.ServiceProvider.getUniquelyOwnedDiscoveryNodes(this.quorumSize, Array.from(endpoints))
-    this.logger.info(`Selected new discovery nodes: [${this.endpoints}]`)
+    this.logger.info(`Selected new discovery nodes in ${(Date.now() - startTime) / 1000} seconds: [${this.endpoints}]`)
   }
 
   /**
@@ -564,6 +587,7 @@ class RewardsAttester {
     if (this.undisbursedQueue.length) return {}
 
     this.logger.info(`Refilling queue with startingBlock: ${this.startingBlock}, offset: ${this.offset}, recently disbursed: ${JSON.stringify(this.recentlyDisbursedQueue)}`)
+    this._updatePhase(ATTESTER_PHASE.REFILLING_QUEUE)
     const { success: disbursable, error } = await this.libs.Rewards.getUndisbursedChallenges({ offset: this.offset, completedBlockNumber: this.startingBlock, logger: this.logger })
 
     if (error) {
@@ -675,6 +699,12 @@ class RewardsAttester {
     // Reselect if necessary
     const shouldReselect = needsRetry.some(({ error }) => NEEDS_RESELECT_ERRORS.has(error))
 
+    // Update state
+    const now = Date.now()
+    this.attesterState.lastChallengeTime = now
+    if (successful.length) {
+      this.attesterState.lastSuccessChallengeTime = now
+    }
     return {
       successful,
       noRetry,
@@ -690,6 +720,7 @@ class RewardsAttester {
   async _backoff (retryCount) {
     const backoff = Math.min(this.cooldownMsec * Math.pow(this.backoffExponent, retryCount), this.maxCooldownMsec)
     this.logger.info(`Waiting [${backoff}] msec`)
+    this._updatePhase(ATTESTER_PHASE.RETRY_BACKOFF)
     return this._delay(backoff)
   }
 
@@ -719,6 +750,10 @@ class RewardsAttester {
       this.logger.info(`Filtered out ${challenges.length - res.length} recent challenges`)
     }
     return res
+  }
+
+  _updatePhase (phase) {
+    this.attesterState.phase = phase
   }
 }
 
